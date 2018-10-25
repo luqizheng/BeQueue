@@ -46,7 +46,7 @@ namespace BeQueue
 
             return (T) Result;
         }
-
+s
         /// <summary>
         ///     执行。
         /// </summary>
