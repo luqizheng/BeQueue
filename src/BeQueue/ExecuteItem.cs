@@ -7,7 +7,7 @@ namespace BeQueue
     /// <summary>
     /// </summary>
     /// <typeparam name="T">Services</typeparam>
-    public class ExecuteItem<T> where T : IDisposable
+    public class ExecuteItem<T>
     {
         private readonly AutoResetEvent _waitResult = new AutoResetEvent(false);
 
@@ -46,7 +46,7 @@ namespace BeQueue
 
             return (T) Result;
         }
-s
+
         /// <summary>
         ///     执行。
         /// </summary>
