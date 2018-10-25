@@ -50,11 +50,9 @@ namespace BeQueue
             }
 
             if (_executeTask == null || _executeTask.IsCompleted)
-            {
                 lock (_lockExecutTask)
                 {
                     if (_executeTask == null || _executeTask.IsCompleted)
-                    {
                         _executeTask = Task.Run(() =>
                         {
                             while (_disposing == false && _pools.TryDequeue(out var result))
@@ -66,15 +64,10 @@ namespace BeQueue
                                     _service = _serviceFactory.CreateService();
                                 }
 
-                                if (_pools.Any())
-                                {
-                                    Thread.Sleep(ExecuteIntervalTime);
-                                }
+                                if (_pools.Any()) Thread.Sleep(ExecuteIntervalTime);
                             }
                         });
-                    }
                 }
-            }
         }
 
         private bool ExecuteResultSuccess(TService clrWrapper, ExecuteItem<TService> result)
@@ -83,10 +76,7 @@ namespace BeQueue
             {
                 var task = result.Execute(clrWrapper).Wait(ExecuteTimeout);
 
-                if (!task)
-                {
-                    result.Abort();
-                }
+                if (!task) result.Abort();
 
                 return task;
             }
@@ -100,16 +90,13 @@ namespace BeQueue
         {
             _pools.Enqueue(item);
         }
+
         public void Dispose()
         {
-
             _disposing = true;
 
 
-            while (_pools.TryDequeue(out var executeItem))
-            {
-                executeItem.Abort();
-            }
+            while (_pools.TryDequeue(out var executeItem)) executeItem.Abort();
         }
     }
 }

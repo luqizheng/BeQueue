@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BeQueue\BeQueue.csproj" />
+    <ProjectReference Include="..\BeQueue\BeQueue.csproj" />
   </ItemGroup>
 
 </Project>
