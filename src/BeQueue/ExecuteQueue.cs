@@ -86,9 +86,10 @@ namespace BeQueue
             }
         }
 
-        public void Invoke(ExecuteItem<TService> item)
+        public TResult Invoke<TResult>(ExecuteItem<TService> item)
         {
             _pools.Enqueue(item);
+            return item.WaitResult<TResult>();
         }
 
         public void Dispose()
