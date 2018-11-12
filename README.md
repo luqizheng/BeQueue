@@ -1,5 +1,5 @@
 # BeQueue
-Let multi task to queue task
+啥，没事不要用，一定不是最好的，随便写写，作者很懒。
 
 #Quick Start
 
