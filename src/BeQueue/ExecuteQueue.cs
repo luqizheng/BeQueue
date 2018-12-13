@@ -88,7 +88,10 @@ namespace BeQueue
 
         public TResult Invoke<TResult>(ExecuteItem<TService> item)
         {
+            if (_disposing)
+                return default(TResult);
             _pools.Enqueue(item);
+            Execute();
             return item.WaitResult<TResult>();
         }
 

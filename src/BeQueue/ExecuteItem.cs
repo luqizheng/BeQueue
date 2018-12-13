@@ -27,7 +27,9 @@ namespace BeQueue
         /// <summary>
         /// </summary>
         public bool? Success { get; set; } = false;
-
+        /// <summary>
+        /// 
+        /// </summary>
         public Exception Exception { get; set; }
 
         /// <summary>
