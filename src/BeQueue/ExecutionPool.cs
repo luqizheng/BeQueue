@@ -46,6 +46,20 @@ namespace BeQueue
             return result;
         }
 
+        public TResult Invoke<TResult>(Func<TService, TResult> func)
+        {
+            var queue = Get();
+            var item = new ExecuteItem<TService>
+            {
+                Action = service => func(service)
+            };
+            var result = queue.Invoke<TResult>(item);
+            if (item.Exception != null)
+                throw item.Exception;
+         
+            return result;
+        }
+
         public void Dispose()
         {
             _disposing = true;

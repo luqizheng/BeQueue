@@ -38,7 +38,11 @@ namespace BeQueue
         /// <returns></returns>
         public T WaitResult<T>()
         {
-            _waitResult.WaitOne();
+            if (!this.Success.HasValue)
+            {
+                _waitResult.WaitOne();
+            }
+       
             if (Success == false)
             {
                 if (Exception != null) throw Exception;
