@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace BeQueue
+﻿namespace BeQueue.ServiceFactories
 {
-    public abstract class ExecutionServiceFactory<TService> where TService : IDisposable
+    public abstract class ExecutionServiceFactory<TService>
     {
         /// <summary>
         ///     create instance

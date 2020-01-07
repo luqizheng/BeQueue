@@ -15,20 +15,17 @@ namespace BeQueue
         /// </summary>
         private Thread _thread;
 
-        /// <summary>
-        ///     执行结果
-        /// </summary>
-        private object Result { get; set; }
+     
 
         /// <summary>
         /// </summary>
-        public Func<T, object> Action { get; set; }
+        public Action<T> Action { get; set; }
 
         /// <summary>
         /// </summary>
         public bool? Success { get; set; } = false;
+
         /// <summary>
-        /// 
         /// </summary>
         public Exception Exception { get; set; }
 
@@ -36,21 +33,12 @@ namespace BeQueue
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public T WaitResult<T>()
+        public void WaitResult()
         {
-            if (!this.Success.HasValue)
-            {
-                _waitResult.WaitOne();
-            }
-       
-            if (Success == false)
-            {
-                if (Exception != null) throw Exception;
+            if (!Success.HasValue) _waitResult.WaitOne();
 
-                return default(T);
-            }
-
-            return (T) Result;
+            if (Success != false) return;
+            if (Exception != null) throw Exception;
         }
 
         /// <summary>
@@ -65,7 +53,7 @@ namespace BeQueue
                 _thread = Thread.CurrentThread;
                 try
                 {
-                    Result = Action.Invoke(clrWrapper);
+                    Action.Invoke(clrWrapper);
                     Success = true;
                 }
                 catch (Exception ex)

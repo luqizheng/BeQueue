@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BeQueue.ServiceFactories;
 
 namespace BeQueue
 {
@@ -10,7 +11,7 @@ namespace BeQueue
     /// </summary>
     /// <typeparam name="TService"></typeparam>
     /// <typeparam name="TFactory"></typeparam>
-    public class ExecuteQueue<TFactory, TService> where TService : IDisposable
+    public class ExecuteQueue<TFactory, TService>
         where TFactory : ExecutionServiceFactory<TService>
 
     {
@@ -42,12 +43,8 @@ namespace BeQueue
 
         private void Execute()
         {
-            if (!_serviceFactory.ServiceReady(_service))
-            {
-                _service?.Dispose();
-
+            if (!_serviceFactory.ServiceReady(_service) || _service == null)
                 _service = _serviceFactory.CreateService();
-            }
 
             if (_executeTask == null || _executeTask.IsCompleted)
                 lock (_lockExecutTask)
@@ -58,11 +55,7 @@ namespace BeQueue
                             while (_disposing == false && _pools.TryDequeue(out var result))
                             {
                                 var executSuccess = ExecuteResultSuccess(_service, result);
-                                if (!executSuccess)
-                                {
-                                    _service?.Dispose();
-                                    _service = _serviceFactory.CreateService();
-                                }
+                                if (!executSuccess) _service = _serviceFactory.CreateService();
 
                                 if (_pools.Any()) Thread.Sleep(ExecuteIntervalTime);
                             }
@@ -76,7 +69,11 @@ namespace BeQueue
             {
                 var task = result.Execute(clrWrapper).Wait(ExecuteTimeout);
 
-                if (!task) result.Abort();
+                if (!task)
+                {
+                    Console.WriteLine("timeout .....");
+                    result.Abort();
+                }
 
                 return task;
             }
@@ -86,13 +83,13 @@ namespace BeQueue
             }
         }
 
-        public TResult Invoke<TResult>(ExecuteItem<TService> item)
+        public void Invoke(ExecuteItem<TService> item)
         {
             if (_disposing)
-                return default(TResult);
+                return;
             _pools.Enqueue(item);
             Execute();
-            return item.WaitResult<TResult>();
+            item.WaitResult();
         }
 
         public void Dispose()

@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using BeQueue.ServiceFactories;
 
 namespace BeQueue
 {
-    public class ExecutionPool<TFatory, TService>
-        where TService : IDisposable
-        where TFatory : ExecutionServiceFactory<TService>
+    public class ExecutionPool<TFactory, TService> : IExecutionPool<TService>
+
+        where TFactory : ExecutionServiceFactory<TService>
     {
-        private readonly List<ExecuteQueue<TFatory, TService>> _pools =
-            new List<ExecuteQueue<TFatory, TService>>();
+        private readonly List<ExecuteQueue<TFactory, TService>> _pools =
+            new List<ExecuteQueue<TFactory, TService>>();
 
         private readonly PoolSetting _setting;
 
@@ -17,13 +18,13 @@ namespace BeQueue
 
         private bool _disposing;
 
-        public ExecutionPool(TFatory factoryService, PoolSetting setting)
+        public ExecutionPool(TFactory factoryService, PoolSetting setting)
         {
             if (factoryService == null) throw new ArgumentNullException(nameof(factoryService));
 
             _setting = setting ?? throw new ArgumentNullException(nameof(setting));
             for (var i = 0; i < setting.PoolSize; i++)
-                _pools.Add(new ExecuteQueue<TFatory, TService>(factoryService)
+                _pools.Add(new ExecuteQueue<TFactory, TService>(factoryService)
                 {
                     ExecuteIntervalTime = setting.ExecuteIntervalTime,
                     ExecuteTimeout = setting.ExecuteTimeout
@@ -34,7 +35,7 @@ namespace BeQueue
         ///     获取执行队列
         /// </summary>
         /// <returns></returns>
-        public ExecuteQueue<TFatory, TService> Get()
+        public ExecuteQueue<TFactory, TService> Get()
         {
             //return item;
             if (_disposing) throw new ObjectDisposedException("ExcutionPools");
@@ -46,18 +47,18 @@ namespace BeQueue
             return result;
         }
 
-        public TResult Invoke<TResult>(Func<TService, TResult> func)
+        public void Invoke(Action<TService> func)
         {
             var queue = Get();
             var item = new ExecuteItem<TService>
             {
                 Action = service => func(service)
             };
-            var result = queue.Invoke<TResult>(item);
+            queue.Invoke(item);
             if (item.Exception != null)
                 throw item.Exception;
-         
-            return result;
+
+
         }
 
         public void Dispose()
