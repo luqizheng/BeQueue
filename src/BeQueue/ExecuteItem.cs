@@ -4,10 +4,18 @@ using System.Threading.Tasks;
 
 namespace BeQueue
 {
+    public interface IExecuteItem
+    {
+        Exception Exception { get; set; }
+        void WaitResult();
+
+        bool? Success { get; set; }
+
+    }
     /// <summary>
     /// </summary>
     /// <typeparam name="T">Services</typeparam>
-    public class ExecuteItem<T>
+    public class ExecuteItem<T> : IExecuteItem
     {
         private readonly AutoResetEvent _waitResult = new AutoResetEvent(false);
 
@@ -15,7 +23,7 @@ namespace BeQueue
         /// </summary>
         private Thread _thread;
 
-     
+
 
         /// <summary>
         /// </summary>

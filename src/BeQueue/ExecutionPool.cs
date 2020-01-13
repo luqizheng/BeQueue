@@ -47,7 +47,7 @@ namespace BeQueue
             return result;
         }
 
-        public void Invoke(Action<TService> func)
+        public IExecuteItem Invoke(Action<TService> func)
         {
             var queue = Get();
             var item = new ExecuteItem<TService>
@@ -58,7 +58,7 @@ namespace BeQueue
             if (item.Exception != null)
                 throw item.Exception;
 
-
+            return item;
         }
 
         public void Dispose()
