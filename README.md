@@ -1,7 +1,55 @@
 # BeQueue
-啥，没事不要用，一定不是最好的，随便写写，作者很懒。
 
 #Quick Start
+
+
+Add some Manager for execute ,
+
+```C#
+  services.AddBeQueue<DbImportManager<T>>(func =>
+        {
+            func.PoolSize = 1;
+            func.ExecuteTimeout = TimeSpan.FromMinutes(3);
+        });
+````
+
+````C#
+Inject 
+ public class LisListenController : Controller
+    {
+      
+        private readonly IExecutionPool<DbImportManager<ApplicationDbContext>> _importManager;      
+
+
+        /// <summary>
+        /// </summary>
+        /// <param name="importManager"></param>
+        /// <param name="dbContext"></param>
+        /// <param name="capBus"></param>
+        /// <param name="logger"></param>
+        public LisListenController(
+            IExecutionPool<DbImportManager<ApplicationDbContext>> importManager)
+        {
+            _importManager = importManager;
+        }
+        
+        [HttpPost("import")]
+        public void OnLisChanged([FromBody] IEnumerable<LisCkInfo> infos)
+        {
+          
+
+
+            var item = _importManager.Invoke(manager => { manager.Todb(infos); });
+            if (item.Exception != null) _logger.LogError(item.Exception, "导入出错.");
+
+            item.WaitResult();
+        }
+  
+````
+
+
+    
+
 
 1) Service Factory like 
 
